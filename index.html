@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Что готовить — Банк рецептов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header__brand">
+        <span class="header__icon">🍳</span>
+        <h1 class="header__title">Что готовить</h1>
+      </div>
+      <p class="header__subtitle">Ваш личный банк рецептов</p>
+    </header>
+
+    <nav class="tabs">
+      <button class="tabs__btn tabs__btn--active" data-tab="recipes">
+        <span class="tabs__icon">📖</span>
+        Рецепты
+      </button>
+      <button class="tabs__btn" data-tab="roulette">
+        <span class="tabs__icon">🎰</span>
+        Рулетка
+      </button>
+    </nav>
+
+    <main class="main">
+      <!-- Вкладка рецептов -->
+      <section id="tab-recipes" class="tab-content tab-content--active">
+        <div class="recipes-toolbar">
+          <div class="category-filter" id="category-filter">
+            <!-- категории генерируются JS -->
+          </div>
+          <button class="btn btn--primary" id="btn-add-recipe">
+            <span>+</span> Добавить рецепт
+          </button>
+        </div>
+        <div class="recipes-list" id="recipes-list">
+          <p class="empty-state">Пока нет рецептов. Добавьте первый!</p>
+        </div>
+      </section>
+
+      <!-- Вкладка рулетки -->
+      <section id="tab-roulette" class="tab-content">
+        <div class="roulette-settings">
+          <h3 class="roulette-settings__title">Категории для рулетки</h3>
+          <div class="roulette-categories" id="roulette-categories">
+            <!-- чекбоксы категорий -->
+          </div>
+        </div>
+
+        <div class="roulette-container">
+          <div class="roulette-frame">
+            <div class="roulette-frame__indicator"></div>
+            <div class="roulette-track-wrapper">
+              <div class="roulette-track" id="roulette-track">
+                <!-- карточки рецептов -->
+              </div>
+            </div>
+          </div>
+          <button class="btn btn--roulette" id="btn-spin">
+            🎲 Крутить!
+          </button>
+          <div class="roulette-result" id="roulette-result"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Модалка: просмотр рецепта -->
+    <dialog class="modal" id="modal-view-recipe">
+      <div class="modal__content modal__content--view">
+        <button class="modal__close" data-close>&times;</button>
+        <div id="view-recipe-content"></div>
+        <div class="modal__actions">
+          <button class="btn btn--danger" id="btn-delete-recipe">Удалить</button>
+          <button class="btn btn--secondary" id="btn-edit-recipe">Редактировать</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Модалка: форма рецепта -->
+    <dialog class="modal" id="modal-recipe-form">
+      <div class="modal__content modal__content--form">
+        <button class="modal__close" data-close>&times;</button>
+        <h2 class="modal__title" id="form-title">Новый рецепт</h2>
+
+        <div class="recipe-photo" id="recipe-photo-area">
+          <img id="recipe-photo-preview" src="" alt="Фото блюда" hidden>
+          <div class="recipe-photo__placeholder" id="recipe-photo-placeholder">
+            <span>📷</span>
+            <p>Нажмите, чтобы добавить фото</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="recipe-name">Название</label>
+          <div class="input-with-btn">
+            <input type="text" id="recipe-name" placeholder="Название блюда" autocomplete="off">
+            <button class="btn btn--small" id="btn-search-recipe" title="Найти рецепт в интернете">🔍</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Категория</label>
+          <select id="recipe-category"></select>
+        </div>
+
+        <div class="form-group">
+          <label>Ингредиенты</label>
+          <div class="ingredients-list" id="ingredients-list"></div>
+          <button class="btn btn--small btn--outline" id="btn-add-ingredient">+ Добавить ингредиент</button>
+        </div>
+
+        <div class="form-group">
+          <label for="recipe-instructions">Рецепт</label>
+          <textarea id="recipe-instructions" rows="6" placeholder="Как и сколько готовить..."></textarea>
+        </div>
+
+        <div class="modal__actions">
+          <button class="btn btn--secondary" data-close>Отмена</button>
+          <button class="btn btn--primary" id="btn-save-recipe">Сохранить</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Модалка: выбор фото -->
+    <dialog class="modal" id="modal-photo-choice">
+      <div class="modal__content modal__content--small">
+        <button class="modal__close" data-close>&times;</button>
+        <h3 class="modal__title">Фото блюда</h3>
+        <p class="photo-choice-hint">Бесплатно: ссылка из интернета или поиск. Firebase Storage не нужен.</p>
+        <div class="photo-choice-btns">
+          <button class="btn btn--primary" id="btn-photo-search">🌐 Найти в интернете</button>
+          <button class="btn btn--secondary" id="btn-photo-url">🔗 Вставить ссылку</button>
+          <button class="btn btn--outline" id="btn-photo-upload">📁 С устройства</button>
+        </div>
+        <input type="file" id="photo-file-input" accept="image/*" hidden>
+      </div>
+    </dialog>
+
+    <!-- Модалка: поиск рецептов в интернете -->
+    <dialog class="modal" id="modal-search-recipes">
+      <div class="modal__content">
+        <button class="modal__close" data-close>&times;</button>
+        <h3 class="modal__title">Поиск рецепта</h3>
+        <div class="search-carousel" id="search-recipes-carousel">
+          <button class="carousel-nav carousel-nav--prev" id="search-recipes-prev">‹</button>
+          <div class="carousel-viewport">
+            <div class="carousel-track" id="search-recipes-track"></div>
+          </div>
+          <button class="carousel-nav carousel-nav--next" id="search-recipes-next">›</button>
+        </div>
+        <p class="carousel-counter" id="search-recipes-counter"></p>
+      </div>
+    </dialog>
+
+    <!-- Модалка: поиск фото в интернете -->
+    <dialog class="modal" id="modal-search-photos">
+      <div class="modal__content">
+        <button class="modal__close" data-close>&times;</button>
+        <h3 class="modal__title">Поиск фото в интернете</h3>
+        <div class="photo-search-bar">
+          <input type="text" id="photo-search-query" placeholder="Название блюда..." autocomplete="off">
+          <button class="btn btn--primary btn--small" id="btn-photo-search-run">Найти</button>
+        </div>
+        <div class="search-carousel" id="search-photos-carousel">
+          <button class="carousel-nav carousel-nav--prev" id="search-photos-prev">‹</button>
+          <div class="carousel-viewport">
+            <div class="carousel-track" id="search-photos-track"></div>
+          </div>
+          <button class="carousel-nav carousel-nav--next" id="search-photos-next">›</button>
+        </div>
+        <p class="carousel-counter" id="search-photos-counter"></p>
+      </div>
+    </dialog>
+
+    <!-- Статус синхронизации -->
+    <div class="sync-status" id="sync-status">
+      <span class="sync-status__dot"></span>
+      <span class="sync-status__text">Подключение...</span>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
